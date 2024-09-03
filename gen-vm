@@ -3,25 +3,25 @@
 # commands : create, list, start, stop 
 
 list_vms () {
-    return
+    echo "--- list VMs ---"
 }
 
 create_vm () {
-    return
+    echo "--- create VM ---"
 }
 
 start_vm () {
-    return
+    echo "--- start VM ---"
 }
 
 stop_vm () {
-    return
+    echo "--- stop VM ---"
 }
 
 main () {
     help=false
 
-    if [[ $# < 2 ]]; then
+    if [[ $# < 2 ]]; then  # if less than 2 arguments are provided, display help message
         help=true
     fi
 
@@ -29,27 +29,37 @@ main () {
 
     case $command in
         list | ls | l)
-            echo "List all VMs"
+            list_vms
             ;;
 
         create | new | c | n)
-            echo "Create a vm"
+            if [ $help == true ]; then
+                echo "Help message for: create"
+            else
+                create_vm
+            fi
             ;;
         
         start | up | s)
-            echo "Start a VM"
+            if [ $help == true ]; then
+                echo "Help message for: start"
+            else
+                start_vm
+            fi
             ;;
 
         stop | down | d)
-            echo "Stop a VM"
+            if [ $help == true ]; then
+                echo "Help message for: stop"
+            else
+               stop_vm
+            fi
             ;;
 
         *)
             echo "Unknown, *display command usage*"
             ;;
     esac
-
-    echo $help
 }
 
 main $@
