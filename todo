@@ -1,2 +1,19 @@
-- help messages
+features:
+- vm create
+- vm list
+- vm delete
+- vm start
+- vm stop
+
+improve:
 - exit codes
+- explicit error messages
+
+doc:
+- features
+- usage
+- known limitations
+- credits
+
+bonus:
+- XML vm template
