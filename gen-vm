@@ -1,9 +1,35 @@
 #!/bin/bash
 
+# commands : create, list, start, stop 
+
 help=false
 
 if [[ $# < 2 ]]; then
     help=true
 fi
+
+command=$1
+
+case $command in
+    list | ls | l)
+        echo "List all VMs"
+        ;;
+
+    create | new | c | n)
+        echo "Create a vm"
+        ;;
+    
+    start | up | s)
+        echo "Start a VM"
+        ;;
+
+    stop | down | d)
+        echo "Stop a VM"
+        ;;
+
+    *)
+        echo "Unknown, *display command usage*"
+        ;;
+esac
 
 echo $help
