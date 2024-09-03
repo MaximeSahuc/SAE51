@@ -2,34 +2,54 @@
 
 # commands : create, list, start, stop 
 
-help=false
+list_vms () {
+    return
+}
 
-if [[ $# < 2 ]]; then
-    help=true
-fi
+create_vm () {
+    return
+}
 
-command=$1
+start_vm () {
+    return
+}
 
-case $command in
-    list | ls | l)
-        echo "List all VMs"
-        ;;
+stop_vm () {
+    return
+}
 
-    create | new | c | n)
-        echo "Create a vm"
-        ;;
-    
-    start | up | s)
-        echo "Start a VM"
-        ;;
+main () {
+    help=false
 
-    stop | down | d)
-        echo "Stop a VM"
-        ;;
+    if [[ $# < 2 ]]; then
+        help=true
+    fi
 
-    *)
-        echo "Unknown, *display command usage*"
-        ;;
-esac
+    command=$1
 
-echo $help
+    case $command in
+        list | ls | l)
+            echo "List all VMs"
+            ;;
+
+        create | new | c | n)
+            echo "Create a vm"
+            ;;
+        
+        start | up | s)
+            echo "Start a VM"
+            ;;
+
+        stop | down | d)
+            echo "Stop a VM"
+            ;;
+
+        *)
+            echo "Unknown, *display command usage*"
+            ;;
+    esac
+
+    echo $help
+}
+
+main $@
