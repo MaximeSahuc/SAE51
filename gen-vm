@@ -1,0 +1,9 @@
+#!/bin/bash
+
+help=false
+
+if [[ $# < 2 ]]; then
+    help=true
+fi
+
+echo $help
