@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Default values
+DEFAULT_VM_NAME="New VM $(date +"%+4Y-%m-%d")"
+DEFAULT_VM_MEMORY=4096  # 4096 Mo = 4Gb
+DEFAULT_VM_DISK_SIZE=65536  # 65536 Mo = 64 Gib
+DEFAULT_VM_NETWORK=
+DEFAULT_VM_BOOT=
 VBOX_MANAGE="/usr/bin/vboxmanage"  # Tested version: 7.0.20r163906
 
 list_vms () {  # usage: gen-vm list
@@ -12,10 +18,6 @@ list_vms () {  # usage: gen-vm list
 
 create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <disk space> --net <network> --boot <boot type>
     echo "--- create VM ---"
-
-    vm_name=
-    vm_memory=4096  # 4096 Mo = 4Gb
-    vm_disk_size=65536  # 65536 Mo = 64 Gib
 
     ######################################################################
     ## Vbox Documentation: https://www.virtualbox.org/manual/ch08.html ##
