@@ -5,7 +5,8 @@ DEFAULT_VM_NAME="New VM $(date +"%+4Y-%m-%d")"
 DEFAULT_VM_MEMORY=4096  # 4096 Mo = 4Gb
 DEFAULT_VM_CPU=2
 DEFAULT_VM_DISK_SIZE=65536  # 65536 Mo = 64 Gib
-DEFAULT_VM_NETWORK=
+DEFAUL_VMS_FOLDER="$HOME/VirtualBox VMs"
+DEFAULT_VM_NETWORK=NAT
 DEFAULT_VM_BOOT=
 VBOX_MANAGE="/usr/bin/vboxmanage"  # Tested version: 7.0.20r163906
 
@@ -20,7 +21,6 @@ list_vms () {  # usage: gen-vm list
 create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <disk space> --net <network> --boot <boot type>
     
     vm_name=$1
-    nic_type=$2
     ######################################################################
     ## Vbox Documentation: https://www.virtualbox.org/manual/ch08.html ##
     ######################################################################
@@ -29,22 +29,25 @@ create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <d
 
     # create new VM
     echo "$1"
-    VBoxManage createvm --name $vm_name --register
+    $VBOX_MANAGE createvm --name $vm_name --register
 
-    # config memory and boot type => PXE
+    # config boot type => PXE
     # https://www.virtualbox.org/manual/ch08.html#vboxmanage-modifyvm
 
-    VBoxManage modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAUL_VM_CPU -nicN=$2
+    # config  memory, CPUs and NIC to NAT
+    $VBOX_MANAGE modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAUL_VM_CPU -nicN=$DEFAULT_VM_NETWORK
 
     # create virtual disk
+    $VBOX_MANAGE createmedium --filename=$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi --size=$DEFAULT_VM_DISK_SIZE
 
-    VBoxManage modifyvm $vm_name 
 
     # add SATA AHCI controller to use SATA drive
+    $VBOX_MANAGE storagectl $vm_name --name="Sata Controller" --add=sata --controller=IntelAhci   
 
     # attach disk to SATA controller
+    $VBOX_MANAGE storageattach $vm_name -storagectl="Sata Controller" --medium=$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi
 
-    # config NIC to NAT
+    
 
     # config PXE boot
     # https://www.virtualbox.org/manual/ch09.html#nat-adv-tftp
