@@ -3,6 +3,7 @@
 # Default values
 DEFAULT_VM_NAME="New VM $(date +"%+4Y-%m-%d")"
 DEFAULT_VM_MEMORY=4096  # 4096 Mo = 4Gb
+DEFAULT_VM_CPU=2
 DEFAULT_VM_DISK_SIZE=65536  # 65536 Mo = 64 Gib
 DEFAULT_VM_NETWORK=
 DEFAULT_VM_BOOT=
@@ -17,8 +18,9 @@ list_vms () {  # usage: gen-vm list
 }
 
 create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <disk space> --net <network> --boot <boot type>
-    echo "--- create VM ---"
-
+    
+    vm_name=$1
+    nic_type=$2
     ######################################################################
     ## Vbox Documentation: https://www.virtualbox.org/manual/ch08.html ##
     ######################################################################
@@ -26,11 +28,17 @@ create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <d
     # delete VM if already exists
 
     # create new VM
+    echo "$1"
+    VBoxManage createvm --name $vm_name --register
 
     # config memory and boot type => PXE
     # https://www.virtualbox.org/manual/ch08.html#vboxmanage-modifyvm
 
+    VBoxManage modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAUL_VM_CPU -nicN=$2
+
     # create virtual disk
+
+    VBoxManage modifyvm $vm_name 
 
     # add SATA AHCI controller to use SATA drive
 
@@ -80,7 +88,7 @@ main () {
             if [ $help == true ]; then
                 echo "Help message for: create"
             else
-                create_vm
+                create_vm $2
             fi
             ;;
         
