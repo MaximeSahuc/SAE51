@@ -14,11 +14,11 @@ Automatisation de la création de machines
 
 ```bash
 $ ./gen-vm
-$ ./gen-vm create
 $ ./gen-vm list
-$ ./gen-vm start
-$ ./gen-vm stop
-$ ./gen-vm destroy
+$ ./gen-vm create my_new_vm
+$ ./gen-vm start my_vm
+$ ./gen-vm stop my_vm
+$ ./gen-vm destroy my_vm
 ```
 
 ## Known limitations
