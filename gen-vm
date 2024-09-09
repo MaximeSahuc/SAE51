@@ -62,16 +62,17 @@ create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <d
 
 start_vm () {  # usage: gen-vm start <vm name>
     echo "--- start VM ---"
+    $VBOX_MANAGE startvm $vm_name
 }
 
 stop_vm () {  # usage: gen-vm stop <vm name>
     echo "--- stop VM ---"
+    $VBOX_MANAGE controlvm $vm_name shutdown
 }
 
 destroy_vm () {  # usage: gen-vm destroy <vm name>
     echo "--- destroy VM ---"
-
-    # doc: https://www.virtualbox.org/manual/ch08.html#vboxmanage-unregistervm
+    $VBOX_MANAGE  unregistervm $vm_name --delete
 }
 
 main () {
