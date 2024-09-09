@@ -5,8 +5,8 @@ DEFAULT_VM_NAME="New VM $(date +"%+4Y-%m-%d")"
 DEFAULT_VM_MEMORY=4096  # 4096 Mo = 4Gb
 DEFAULT_VM_CPU=2
 DEFAULT_VM_DISK_SIZE=65536  # 65536 Mo = 64 Gib
-DEFAUL_VMS_FOLDER="$HOME/VirtualBox VMs"
-DEFAULT_VM_NETWORK=NAT
+DEFAULT_VMS_FOLDER="$HOME/VirtualBox VMs"
+DEFAULT_VM_NETWORK=nat
 DEFAULT_VM_BOOT=
 VBOX_MANAGE="/usr/bin/vboxmanage"  # Tested version: 7.0.20r163906
 
@@ -26,29 +26,26 @@ create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <d
     ######################################################################
 
     # delete VM if already exists
+    $VBOX_MANAGE unregistervm --delete $vm_name > /dev/null 2>&1
 
     # create new VM
-    echo "$1"
-    $VBOX_MANAGE createvm --name $vm_name --register
+    $VBOX_MANAGE createvm --name=$vm_name --register --ostype=Debian_64 --basefolder="$DEFAULT_VMS_FOLDER"
 
     # config boot type => PXE
     # https://www.virtualbox.org/manual/ch08.html#vboxmanage-modifyvm
 
     # config  memory, CPUs and NIC to NAT
-    $VBOX_MANAGE modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAUL_VM_CPU -nicN=$DEFAULT_VM_NETWORK
-
+    $VBOX_MANAGE modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAULT_VM_CPU --nic1=$DEFAULT_VM_NETWORK
+    
     # create virtual disk
-    $VBOX_MANAGE createmedium --filename=$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi --size=$DEFAULT_VM_DISK_SIZE
-
+    $VBOX_MANAGE createmedium disk --filename="$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi" --size=$DEFAULT_VM_DISK_SIZE
 
     # add SATA AHCI controller to use SATA drive
     $VBOX_MANAGE storagectl $vm_name --name="Sata Controller" --add=sata --controller=IntelAhci   
 
     # attach disk to SATA controller
-    $VBOX_MANAGE storageattach $vm_name -storagectl="Sata Controller" --medium=$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi
-
+    $VBOX_MANAGE storageattach $vm_name --storagectl="Sata Controller" --medium="$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi" --port=0 --device 0 --type hdd
     
-
     # config PXE boot
     # https://www.virtualbox.org/manual/ch09.html#nat-adv-tftp
 
