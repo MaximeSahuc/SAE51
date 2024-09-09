@@ -34,8 +34,8 @@ create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <d
     # config boot type => PXE
     # https://www.virtualbox.org/manual/ch08.html#vboxmanage-modifyvm
 
-    # config  memory, CPUs and NIC to NAT
-    $VBOX_MANAGE modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAULT_VM_CPU --nic1=$DEFAULT_VM_NETWORK
+    # config  memory, CPUs, NIC to NAT and boot config
+    $VBOX_MANAGE modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAULT_VM_CPU --nic1=$DEFAULT_VM_NETWORK --boot1=net
     
     # create virtual disk
     $VBOX_MANAGE createmedium disk --filename="$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi" --size=$DEFAULT_VM_DISK_SIZE
@@ -49,8 +49,12 @@ create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <d
     # config PXE boot
     # https://www.virtualbox.org/manual/ch09.html#nat-adv-tftp
 
+    $VBOX_MANAGE modifyvm $vm_name --nattftpfile1 pxelinux.0
+
     # add metadata => creation date + creation user
-    # https://www.virtualbox.org/manual/ch08.html#vboxmanage-setextradata
+    current_date=$(date +"%+4Y-%m-%d")
+    $VBOX_MANAGE setextradata $vm_name creation_date $current_date
+    $VBOX_MANAGE setextradata $vm_name creation_user $USER
 
     # auto logon
     # https://www.virtualbox.org/manual/ch09.html#autologon_unix
