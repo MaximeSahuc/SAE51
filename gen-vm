@@ -11,8 +11,36 @@ DEFAULT_VM_BOOT=
 VBOX_MANAGE="/usr/bin/vboxmanage"  # Tested version: 7.0.20r163906
 
 list_vms () {  # usage: gen-vm list
-    echo "--- list VMs ---"
-    # name : metadata : disk size : memory : creation date : created by 
+    printf "Virtual Machines list:\n\n"
+    vm_list=$($VBOX_MANAGE list vms)
+
+    while read -r data; do
+        data="${data//\"}"  # remove ""
+
+        vm_name=$(echo $data | cut -d " " -f 1)
+        vm_creation_date=$($VBOX_MANAGE getextradata $vm_name creation_date)
+        vm_creation_user=$($VBOX_MANAGE getextradata $vm_name creation_user)
+        vm_memory=$($VBOX_MANAGE showvminfo $vm_name | awk '/Memory size:/ {print $3}')
+        vm_state=$($VBOX_MANAGE showvminfo $vm_name | grep "State:" | awk -F '[()]' '{gsub(/State:                       /, ""); print $1}')  # Bidouille mais ça marche
+        
+        vm_disk_size="?"
+        vm_medium_info=$($VBOX_MANAGE showmediuminfo disk "$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi" > /dev/null 2>&1)
+        if [ $? == 0 ]; then
+            vm_disk_size=$($VBOX_MANAGE showmediuminfo disk "$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi" | awk '/Capacity:/ {print $2}')
+        fi
+        
+        echo " - Name: $vm_name"
+        echo "   Memory: $vm_memory"
+        printf "   Disk size: %sMB\n" $vm_disk_size
+        echo "   State: $vm_state"
+        echo "   Creation Date: $vm_creation_date"
+        echo "   Creation User: $vm_creation_user"
+
+        printf "\n"
+
+    done <<< "$vm_list"
+
+    # VBoxManage showvminfo 765f3483-b745-45fd-b0fd-b986df54b323
 
     # doc: https://www.virtualbox.org/manual/ch08.html#vboxmanage-list
     # get vm metadata: https://www.virtualbox.org/manual/ch08.html#vboxmanage-getextradata
@@ -22,7 +50,6 @@ create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <d
     vm_name=$1
     ######################################################################
     ## Vbox Documentation: https://www.virtualbox.org/manual/ch08.html ##
-    ######################################################################
 
     # delete VM if already exists
     $VBOX_MANAGE unregistervm --delete $vm_name > /dev/null 2>&1
