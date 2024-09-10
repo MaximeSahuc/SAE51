@@ -3,9 +3,10 @@
 # Default values
 DEFAULT_VM_NAME="New VM $(date +"%+4Y-%m-%d")"
 DEFAULT_VM_MEMORY=4096  # 4096 Mo = 4Gb
+DEFAULT_VM_CPU=2
 DEFAULT_VM_DISK_SIZE=65536  # 65536 Mo = 64 Gib
 DEFAULT_VMS_FOLDER="$HOME/VirtualBox VMs"
-DEFAULT_VM_NETWORK=
+DEFAULT_VM_NETWORK=nat
 DEFAULT_VM_BOOT=
 VBOX_MANAGE="/usr/bin/vboxmanage"  # Tested version: 7.0.20r163906
 
@@ -46,48 +47,58 @@ list_vms () {  # usage: gen-vm list
 }
 
 create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <disk space> --net <network> --boot <boot type>
-    echo "--- create VM ---"
-
+    vm_name=$1
     ######################################################################
     ## Vbox Documentation: https://www.virtualbox.org/manual/ch08.html ##
 
     # delete VM if already exists
+    $VBOX_MANAGE unregistervm --delete $vm_name > /dev/null 2>&1
 
     # create new VM
+    $VBOX_MANAGE createvm --name=$vm_name --register --ostype=Debian_64 --basefolder="$DEFAULT_VMS_FOLDER"
 
-    # config memory and boot type => PXE
+    # config boot type => PXE
     # https://www.virtualbox.org/manual/ch08.html#vboxmanage-modifyvm
 
+    # config  memory, CPUs, NIC to NAT and boot config
+    $VBOX_MANAGE modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAULT_VM_CPU --nic1=$DEFAULT_VM_NETWORK --boot1=net
+    
     # create virtual disk
+    $VBOX_MANAGE createmedium disk --filename="$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi" --size=$DEFAULT_VM_DISK_SIZE
 
     # add SATA AHCI controller to use SATA drive
+    $VBOX_MANAGE storagectl $vm_name --name="Sata Controller" --add=sata --controller=IntelAhci   
 
     # attach disk to SATA controller
-
-    # config NIC to NAT
-
+    $VBOX_MANAGE storageattach $vm_name --storagectl="Sata Controller" --medium="$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi" --port=0 --device 0 --type hdd
+    
     # config PXE boot
     # https://www.virtualbox.org/manual/ch09.html#nat-adv-tftp
 
+    $VBOX_MANAGE modifyvm $vm_name --nattftpfile1 pxelinux.0
+
     # add metadata => creation date + creation user
-    # https://www.virtualbox.org/manual/ch08.html#vboxmanage-setextradata
+    current_date=$(date +"%+4Y-%m-%d")
+    $VBOX_MANAGE setextradata $vm_name creation_date $current_date
+    $VBOX_MANAGE setextradata $vm_name creation_user $USER
 
     # auto logon
     # https://www.virtualbox.org/manual/ch09.html#autologon_unix
 }
 
 start_vm () {  # usage: gen-vm start <vm name>
-    echo "--- start VM ---"
+    vm_name=$1
+    $VBOX_MANAGE startvm $vm_name
 }
 
 stop_vm () {  # usage: gen-vm stop <vm name>
-    echo "--- stop VM ---"
+    vm_name=$1
+    $VBOX_MANAGE controlvm $vm_name poweroff # shutdown command not supported without Guest Additions
 }
 
 destroy_vm () {  # usage: gen-vm destroy <vm name>
-    echo "--- destroy VM ---"
-
-    # doc: https://www.virtualbox.org/manual/ch08.html#vboxmanage-unregistervm
+    vm_name=$1
+    $VBOX_MANAGE  unregistervm $vm_name --delete
 }
 
 main () {
@@ -108,7 +119,7 @@ main () {
             if [ $help == true ]; then
                 echo "Help message for: create"
             else
-                create_vm
+                create_vm $2
             fi
             ;;
         
@@ -116,7 +127,7 @@ main () {
             if [ $help == true ]; then
                 echo "Help message for: start"
             else
-                start_vm
+                start_vm $2
             fi
             ;;
 
@@ -124,7 +135,7 @@ main () {
             if [ $help == true ]; then
                 echo "Help message for: stop"
             else
-               stop_vm
+               stop_vm $2
             fi
             ;;
 
@@ -132,7 +143,7 @@ main () {
             if [ $help == true ]; then
                 echo "Help message for: destroy"
             else
-               destroy_vm
+               destroy_vm $2
             fi
             ;;
 
