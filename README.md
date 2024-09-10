@@ -1,7 +1,7 @@
 
 # SAE51
 
-Automatisation de la création de machines
+```gen-vm``` is a shell script for automating VirtualBox VM management.
 
 ## Features
 

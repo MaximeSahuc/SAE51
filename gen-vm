@@ -7,7 +7,7 @@ DEFAULT_VM_CPU=2
 DEFAULT_VM_DISK_SIZE=65536  # 65536 Mo = 64 Gib
 DEFAULT_VMS_FOLDER="$HOME/VirtualBox VMs"
 DEFAULT_VM_NETWORK=nat
-DEFAULT_VM_BOOT=
+DEFAULT_VM_BOOT=net
 VBOX_MANAGE="/usr/bin/vboxmanage"  # Tested version: 7.0.20r163906
 
 list_vms () {  # usage: gen-vm list
@@ -61,7 +61,7 @@ create_vm () {  # usage: gen-vm create --name <vm name> --mem <memory> --disk <d
     # https://www.virtualbox.org/manual/ch08.html#vboxmanage-modifyvm
 
     # config  memory, CPUs, NIC to NAT and boot config
-    $VBOX_MANAGE modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAULT_VM_CPU --nic1=$DEFAULT_VM_NETWORK --boot1=net
+    $VBOX_MANAGE modifyvm $vm_name --memory=$DEFAULT_VM_MEMORY --cpus=$DEFAULT_VM_CPU --nic1=$DEFAULT_VM_NETWORK --boot1=$DEFAULT_VM_BOOT
     
     # create virtual disk
     $VBOX_MANAGE createmedium disk --filename="$DEFAULT_VMS_FOLDER/$vm_name/$vm_name.vdi" --size=$DEFAULT_VM_DISK_SIZE
