@@ -26,6 +26,10 @@ $ ./gen-vm destroy my_vm
 - Limited customization
 - No interactive script
 
+## Improvements
+
+- Guest auto logon 
+
 ## Authors
 
 - [@MaximeSahuc](https://github.com/MaximeSahuc)
