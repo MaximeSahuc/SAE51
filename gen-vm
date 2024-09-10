@@ -111,29 +111,29 @@ main () {
     command=$1
 
     case $command in
-        list | ls | l)
+        list | l | -l)
             list_vms
             ;;
 
-        create | new | c | n)
+        create | c | -c)
             if [ $help == true ]; then
-                echo "Help message for: create"
+                echo "usage: gen-vm create <my_new_vm>"
             else
                 create_vm $2
             fi
             ;;
         
-        start | up | s)
+        start)
             if [ $help == true ]; then
-                echo "Help message for: start"
+                echo "usage: gen-vm start <vm_name>"
             else
                 start_vm $2
             fi
             ;;
 
-        stop | down | d)
+        stop)
             if [ $help == true ]; then
-                echo "Help message for: stop"
+                echo "usage: gen-vm stop <vm_name>"
             else
                stop_vm $2
             fi
@@ -141,14 +141,20 @@ main () {
 
         destroy)
             if [ $help == true ]; then
-                echo "Help message for: destroy"
+                echo "usage: gen-vm destroy <vm_name>"
             else
                destroy_vm $2
             fi
             ;;
 
         *)
-            echo "Unknown, *display command usage*"
+            echo "gen-vm - manage VirtualBox virtual machines"
+            echo ""
+            echo "usage: gen-vm [-l list]"
+            echo "usage: gen-vm [-c create] <my_new_vm>"
+            echo "usage: gen-vm start <vm_name>"
+            echo "usage: gen-vm stop <vm_name>"
+            echo "usage: gen-vm destroy <vm_name>"
             ;;
     esac
 }
